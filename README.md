@@ -120,4 +120,3 @@ npm start
 ## Repository
 GitHub: https://github.com/ravithakur776/Support-Ticket-Management
 
-..
