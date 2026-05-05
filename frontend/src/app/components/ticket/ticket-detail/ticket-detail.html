@@ -1,0 +1,221 @@
+<section class="ticket-detail-page">
+  @if (isLoading) {
+    <div class="loading-wrap card-surface">
+      <mat-spinner diameter="36" />
+      <p>Loading ticket workspace...</p>
+    </div>
+  } @else if (errorMessage) {
+    <mat-card class="error-card">
+      <mat-card-title>Unable to Load Ticket</mat-card-title>
+      <mat-card-content>{{ errorMessage }}</mat-card-content>
+      <mat-card-actions>
+        <a mat-button routerLink="/tickets">Back to Tickets</a>
+      </mat-card-actions>
+    </mat-card>
+  } @else if (ticket) {
+    <header class="ticket-header card-surface">
+      <div>
+        <h1>{{ ticket.title }}</h1>
+        <p>
+          <span class="mono">{{ ticket._id }}</span>
+          Created by {{ createdByName }} | Assigned to {{ assignedToName }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button type="button" (click)="copyTicketId()">
+          <mat-icon>content_copy</mat-icon>
+          Copy ID
+        </button>
+        <a mat-stroked-button routerLink="/tickets">Back</a>
+      </div>
+    </header>
+
+    <section class="summary-grid">
+      <mat-card>
+        <mat-card-subtitle>Status</mat-card-subtitle>
+        <mat-card-title>
+          <span class="status-pill" [ngClass]="'status-' + ticket.status">{{ ticket.status | titlecase }}</span>
+        </mat-card-title>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-subtitle>Priority</mat-card-subtitle>
+        <mat-card-title>
+          <span class="status-pill" [ngClass]="'priority-' + ticket.priority">{{ ticket.priority | titlecase }}</span>
+        </mat-card-title>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-subtitle>Age</mat-card-subtitle>
+        <mat-card-title>{{ ticketAgeHours | number: '1.0-0' }}h</mat-card-title>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-subtitle>Comments</mat-card-subtitle>
+        <mat-card-title>{{ comments.length }}</mat-card-title>
+      </mat-card>
+    </section>
+
+    @if (quickTransitionStatuses.length > 0) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Quick Workflow Actions</mat-card-title>
+          <mat-card-subtitle>One-click transitions for faster queue execution.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="quick-actions">
+          <button mat-flat-button color="primary" type="button" *ngFor="let status of quickTransitionStatuses" (click)="quickSetStatus(status)">
+            {{ statusActionLabel(status) }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <section class="content-grid">
+      <mat-card class="update-card">
+        <mat-card-header>
+          <mat-card-title>Update Ticket</mat-card-title>
+          <mat-card-subtitle>Fields are role-restricted and backend-validated.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="updateForm" class="update-form" (ngSubmit)="saveTicketUpdate()">
+            @if (canEditCoreFields) {
+              <mat-form-field appearance="outline">
+                <mat-label>Title</mat-label>
+                <input matInput formControlName="title" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Description</mat-label>
+                <textarea matInput rows="5" formControlName="description"></textarea>
+              </mat-form-field>
+            } @else {
+              <div class="read-only-block">
+                <h3>Description</h3>
+                <p>{{ ticket.description }}</p>
+              </div>
+            }
+
+            @if (canManageWorkflowFields) {
+              <div class="row-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Status</mat-label>
+                  <mat-select formControlName="status">
+                    <mat-option *ngFor="let status of allowedStatusesForRole" [value]="status">{{ status | titlecase }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Priority</mat-label>
+                  <mat-select formControlName="priority">
+                    <mat-option *ngFor="let priority of allPriorities" [value]="priority">{{ priority | titlecase }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            }
+
+            @if (isAdmin) {
+              <mat-form-field appearance="outline">
+                <mat-label>Assign To</mat-label>
+                <mat-select formControlName="assignedTo">
+                  <mat-option value="">Unassigned</mat-option>
+                  <mat-option *ngFor="let user of assignableUsers" [value]="user._id || user.id">{{ user.name }} ({{ user.email }})</mat-option>
+                </mat-select>
+              </mat-form-field>
+            }
+
+            <div class="action-row">
+              @if (canCloseTicket) {
+                <button mat-flat-button color="primary" type="button" (click)="closeTicketAsUser()" [disabled]="isSaving">
+                  Close Ticket
+                </button>
+              }
+
+              @if (!isEndUser) {
+                <button mat-flat-button color="primary" type="submit" [disabled]="isSaving">
+                  Save Changes
+                </button>
+              }
+
+              @if (isSaving) {
+                <mat-spinner diameter="20" />
+              }
+            </div>
+
+            @if (updateMessage) {
+              <p class="inline-message">{{ updateMessage }}</p>
+            }
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Status History</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (!ticket.statusHistory?.length) {
+            <p class="muted">No status transitions recorded yet.</p>
+          } @else {
+            <div class="history-list">
+              <article class="history-item" *ngFor="let item of ticket.statusHistory">
+                <div>
+                  <strong>{{ item.fromStatus ? (item.fromStatus | titlecase) : 'New' }} -> {{ item.toStatus | titlecase }}</strong>
+                  <p>{{ item.note || 'Status updated' }}</p>
+                </div>
+                <time>{{ item.changedAt | date: 'short' }}</time>
+              </article>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Conversation</mat-card-title>
+        <mat-card-subtitle>{{ comments.length }} messages | Press Ctrl/Cmd + Enter to post quickly</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="commentForm" class="comment-form" (ngSubmit)="postComment()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Add Comment</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              formControlName="content"
+              placeholder="Share updates, blockers, or resolution notes"
+              (keydown)="submitCommentFromKeydown($event)"
+            ></textarea>
+          </mat-form-field>
+
+          <div class="action-row">
+            <button mat-flat-button color="primary" type="submit" [disabled]="isPostingComment">Post Comment</button>
+            @if (isPostingComment) {
+              <mat-spinner diameter="20" />
+            }
+          </div>
+
+          @if (commentMessage) {
+            <p class="inline-message">{{ commentMessage }}</p>
+          }
+        </form>
+
+        <mat-divider class="divider" />
+
+        @if (comments.length === 0) {
+          <p class="muted">No comments yet.</p>
+        } @else {
+          <div class="comment-list">
+            <article class="comment-item" *ngFor="let comment of comments" [class.optimistic]="comment._id.startsWith('temp-')">
+              <header>
+                <strong>{{ commentAuthorName(comment) }}</strong>
+                <time>{{ comment.createdAt | date: 'short' }}</time>
+              </header>
+              <p>{{ comment.content }}</p>
+            </article>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

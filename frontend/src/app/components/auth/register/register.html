@@ -1,0 +1,59 @@
+<div class="auth-page">
+  <section class="auth-shell card-surface">
+    <aside class="auth-aside">
+      <span class="eyebrow">Get Started</span>
+      <h1>Create your support workspace identity</h1>
+      <p>Track requests, collaborate with support, and keep issue history centralized from day one.</p>
+      <ul>
+        <li><mat-icon>support_agent</mat-icon>Direct ticket conversations</li>
+        <li><mat-icon>track_changes</mat-icon>Transparent status tracking</li>
+        <li><mat-icon>shield</mat-icon>Secure role-based access</li>
+      </ul>
+    </aside>
+
+    <mat-card class="auth-card">
+      <mat-card-header>
+        <mat-card-title>Create Account</mat-card-title>
+        <mat-card-subtitle>Register to submit and track support tickets</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput type="text" formControlName="name" autocomplete="name" />
+            <mat-error *ngIf="form.controls.name.touched && form.controls.name.invalid">Name must be at least 2 characters.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" />
+            <mat-error *ngIf="form.controls.email.touched && form.controls.email.invalid">Enter a valid email address.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="new-password" />
+            <mat-error *ngIf="form.controls.password.touched && form.controls.password.invalid">Password must be at least 8 characters.</mat-error>
+          </mat-form-field>
+
+          @if (errorMessage) {
+            <p class="error-text">{{ errorMessage }}</p>
+          }
+
+          <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+              <mat-spinner diameter="18" />
+            } @else {
+              <span>Create Account</span>
+            }
+          </button>
+        </form>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <a mat-button routerLink="/login">Already have an account? Sign in</a>
+      </mat-card-actions>
+    </mat-card>
+  </section>
+</div>

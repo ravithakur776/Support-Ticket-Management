@@ -1,0 +1,92 @@
+.auth-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+}
+
+.auth-shell {
+  width: min(960px, 100%);
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.auth-aside {
+  padding: 0.8rem;
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    color: var(--brand-deep);
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0.55rem 0 0;
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    line-height: 1.12;
+  }
+
+  p {
+    margin: 0.7rem 0 0;
+    color: var(--text-muted);
+    max-width: 38ch;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 600;
+    color: var(--text-body);
+  }
+
+  mat-icon {
+    color: var(--brand-deep);
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+.auth-card {
+  width: 100%;
+  padding-bottom: 0.3rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.error-text {
+  margin: 0;
+  color: var(--danger);
+}
+
+button[mat-flat-button] {
+  min-height: 42px;
+}
+
+@media (max-width: 900px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-aside {
+    display: none;
+  }
+}

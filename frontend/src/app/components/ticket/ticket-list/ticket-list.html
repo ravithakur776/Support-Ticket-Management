@@ -1,0 +1,203 @@
+<section class="ticket-page">
+  <header class="ticket-header card-surface">
+    <div>
+      <h1>{{ roleTicketLabel }}</h1>
+      <p>High-speed operations board with smart filters, live updates, and quick ticket intake.</p>
+    </div>
+    <div class="header-actions">
+      @if (isBackgroundRefreshing) {
+        <span class="sync-label"><mat-icon>sync</mat-icon>Syncing</span>
+      }
+      <button mat-flat-button color="primary" type="button" (click)="toggleCreatePanel()">
+        <mat-icon>{{ isCreatePanelOpen ? 'close' : 'add' }}</mat-icon>
+        {{ isCreatePanelOpen ? 'Close Creator' : 'New Ticket' }}
+      </button>
+    </div>
+  </header>
+
+  <section class="quick-metrics">
+    <article class="metric-card">
+      <span>Total</span>
+      <strong>{{ totalCount }}</strong>
+    </article>
+    <article class="metric-card warn">
+      <span>Active Queue</span>
+      <strong>{{ unresolvedCount }}</strong>
+    </article>
+    <article class="metric-card danger">
+      <span>High Priority</span>
+      <strong>{{ highPriorityCount }}</strong>
+    </article>
+    <article class="metric-card">
+      <span>Unassigned</span>
+      <strong>{{ unassignedCount }}</strong>
+    </article>
+  </section>
+
+  @if (isCreatePanelOpen) {
+    <mat-card class="creator-card">
+      <mat-card-header>
+        <mat-card-title>Create Ticket</mat-card-title>
+        <mat-card-subtitle>Capture issue details with priority and assign workflow later.</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="createForm" class="create-grid" (ngSubmit)="createTicket()">
+          <mat-form-field appearance="outline" class="title-input">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Payment gateway timeout for premium checkout" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="priority-input">
+            <mat-label>Priority</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option *ngFor="let priority of priorities; trackBy: trackByValue" [value]="priority">{{ priority | titlecase }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="description-input">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="4" formControlName="description"></textarea>
+          </mat-form-field>
+
+          <div class="create-actions">
+            <button mat-flat-button color="primary" type="submit" [disabled]="isCreatingTicket">
+              @if (isCreatingTicket) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <span>Create Ticket</span>
+              }
+            </button>
+            <button mat-stroked-button type="button" (click)="toggleCreatePanel()">Cancel</button>
+          </div>
+
+          @if (createMessage) {
+            <p class="inline-message">{{ createMessage }}</p>
+          }
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="filtersForm" class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let status of statuses; trackBy: trackByValue" [value]="status">{{ status | titlecase }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let priority of priorities; trackBy: trackByValue" [value]="priority">{{ priority | titlecase }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Sort</mat-label>
+          <mat-select formControlName="sortBy">
+            <mat-option *ngFor="let option of sortOptions; trackBy: trackBySortOption" [value]="option.value">{{ option.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search</mat-label>
+          <input matInput formControlName="search" placeholder="Title or description" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Scope</mat-label>
+          <mat-select formControlName="unassignedOnly">
+            <mat-option [value]="false">All Tickets</mat-option>
+            <mat-option [value]="true">Unassigned Only</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="filter-actions">
+          <button mat-stroked-button type="button" (click)="resetFilters()">Reset</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (isLoading) {
+    <div class="loading-wrap card-surface">
+      <mat-spinner diameter="34" />
+      <p>Loading tickets...</p>
+    </div>
+  } @else if (errorMessage) {
+    <mat-card class="error-card">
+      <mat-card-title>Could Not Load Tickets</mat-card-title>
+      <mat-card-content>{{ errorMessage }}</mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Results ({{ tickets.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (tickets.length === 0) {
+          <p class="empty-state">No tickets match the current filters.</p>
+        } @else {
+          <div class="table-wrap">
+            <table mat-table [dataSource]="tickets" class="ticket-table">
+              <ng-container matColumnDef="title">
+                <th mat-header-cell *matHeaderCellDef>Title</th>
+                <td mat-cell *matCellDef="let ticket">
+                  <div class="title-cell">
+                    <strong>{{ ticket.title }}</strong>
+                    <span>{{ ticket.description }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let ticket">
+                  <span class="status-pill" [ngClass]="'status-' + ticket.status">{{ ticket.status | titlecase }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="priority">
+                <th mat-header-cell *matHeaderCellDef>Priority</th>
+                <td mat-cell *matCellDef="let ticket">
+                  <span class="status-pill" [ngClass]="'priority-' + ticket.priority">{{ ticket.priority | titlecase }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="createdBy">
+                <th mat-header-cell *matHeaderCellDef>Created By</th>
+                <td mat-cell *matCellDef="let ticket">{{ ownerName(ticket.createdBy) }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="assignedTo">
+                <th mat-header-cell *matHeaderCellDef>Assigned To</th>
+                <td mat-cell *matCellDef="let ticket">{{ ownerName(ticket.assignedTo) }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="updatedAt">
+                <th mat-header-cell *matHeaderCellDef>Updated</th>
+                <td mat-cell *matCellDef="let ticket">{{ ticket.updatedAt | date: 'short' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Action</th>
+                <td mat-cell *matCellDef="let ticket">
+                  <a mat-stroked-button color="primary" [routerLink]="['/tickets', ticket._id]">Open</a>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

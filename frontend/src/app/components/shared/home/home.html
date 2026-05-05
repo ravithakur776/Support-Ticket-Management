@@ -1,0 +1,106 @@
+<section class="dashboard-page">
+  <header class="dashboard-header card-surface">
+    <div>
+      <h1>{{ roleLabel }}</h1>
+      <p>Live support intelligence with queue health, aging risk, and throughput at a glance.</p>
+    </div>
+    <div class="dashboard-badge">
+      <mat-icon>monitoring</mat-icon>
+      Real-time
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="loading-wrap card-surface">
+      <mat-spinner diameter="36" />
+      <p>Loading operations dashboard...</p>
+    </div>
+  } @else if (errorMessage) {
+    <mat-card class="error-card">
+      <mat-card-title>Could Not Load Dashboard</mat-card-title>
+      <mat-card-content>{{ errorMessage }}</mat-card-content>
+    </mat-card>
+  } @else {
+    <section class="metric-grid">
+      <mat-card *ngFor="let metric of summaryMetrics; trackBy: trackByMetricLabel" [class.warn]="metric.tone === 'warn'" [class.accent]="metric.tone === 'accent'" [class.success]="metric.tone === 'success'">
+        <mat-card-content>
+          <div class="metric-row">
+            <span class="metric-icon"><mat-icon>{{ metric.icon }}</mat-icon></span>
+            <div>
+              <p>{{ metric.label }}</p>
+              <h2>{{ metric.value }}</h2>
+              <small>{{ metric.hint }}</small>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="content-grid">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Queue Mix</mat-card-title>
+          <mat-card-subtitle>Distribution by workflow state</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="segment-list">
+          <article class="segment-item" *ngFor="let segment of statusSegments; trackBy: trackBySegmentLabel">
+            <header>
+              <strong>{{ segment.label }}</strong>
+              <span>{{ segment.value }} ({{ segment.percentage }}%)</span>
+            </header>
+            <div class="bar">
+              <span [class]="segment.css" [style.width.%]="segment.percentage"></span>
+            </div>
+          </article>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Aging Risk (48h+)</mat-card-title>
+          <mat-card-subtitle>Open items nearing SLA breach</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (riskTickets.length === 0) {
+            <p class="muted">No aging risks right now.</p>
+          } @else {
+            <div class="risk-list">
+              <article class="risk-item" *ngFor="let ticket of riskTickets; trackBy: trackByTicketId">
+                <div>
+                  <h3>{{ ticket.title }}</h3>
+                  <p>{{ ticket.priority | titlecase }} priority</p>
+                </div>
+                <span class="age-pill">{{ ticket.ageHours | number: '1.0-0' }}h</span>
+              </article>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Recent Activity</mat-card-title>
+        <mat-card-subtitle>Latest updated tickets in your scope</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (recentTickets.length === 0) {
+          <p class="muted">No tickets available yet.</p>
+        } @else {
+          <div class="recent-list">
+            <article class="recent-item" *ngFor="let ticket of recentTickets; trackBy: trackByTicketId">
+              <div>
+                <h3>{{ ticket.title }}</h3>
+                <p>
+                  <span class="status-pill" [ngClass]="'status-' + ticket.status">{{ ticket.status | titlecase }}</span>
+                  <span class="status-pill" [ngClass]="'priority-' + ticket.priority">{{ ticket.priority | titlecase }}</span>
+                </p>
+              </div>
+              <time>{{ ticket.updatedAt | date: 'medium' }}</time>
+            </article>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

@@ -1,0 +1,137 @@
+.shell-container {
+  min-height: 100dvh;
+}
+
+.shell-nav {
+  width: 285px;
+  padding: 0.9rem;
+  border-right: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 252, 255, 0.95));
+}
+
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+  padding: 0.6rem 0.5rem 0.8rem;
+
+  strong {
+    display: block;
+    color: var(--text-strong);
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0.1rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+  }
+}
+
+.shell-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+}
+
+.active-link {
+  border-radius: 10px;
+  background: rgba(11, 122, 154, 0.14);
+}
+
+.new-ticket-btn {
+  width: 100%;
+  margin-top: 0.9rem;
+  background: linear-gradient(120deg, #0b7a9a, #126f89) !important;
+  color: #fff !important;
+}
+
+.shell-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border-soft);
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.title-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+}
+
+.shell-title {
+  font-weight: 800;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+}
+
+.shell-subtitle {
+  opacity: 0.95;
+  color: var(--text-muted);
+  font-size: 0.77rem;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.realtime-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #9ca3af;
+}
+
+.realtime-dot.online {
+  background: var(--success);
+  box-shadow: 0 0 0 6px rgba(24, 121, 78, 0.12);
+}
+
+.user-meta {
+  margin-right: 0.3rem;
+  color: var(--text-body);
+  font-weight: 600;
+
+  small {
+    margin-left: 0.35rem;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+}
+
+.shell-content {
+  padding: clamp(0.9rem, 1.2vw, 1.2rem);
+}
+
+@media (max-width: 959px) {
+  .shell-nav {
+    width: min(88vw, 320px);
+  }
+
+  .title-wrap {
+    min-width: 0;
+  }
+
+  .shell-title {
+    font-size: 0.95rem;
+  }
+
+  .shell-subtitle {
+    font-size: 0.72rem;
+  }
+
+  .user-meta {
+    display: none;
+  }
+}

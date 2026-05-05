@@ -1,0 +1,155 @@
+<section class="user-page">
+  <header class="user-header card-surface">
+    <div>
+      <h1>User Operations</h1>
+      <p>Manage account roles, activation state, and support-team composition in real time.</p>
+    </div>
+  </header>
+
+  <section class="stat-grid">
+    <article class="stat-card">
+      <span>Total Users</span>
+      <strong>{{ totalCount }}</strong>
+    </article>
+    <article class="stat-card success">
+      <span>Active</span>
+      <strong>{{ activeCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Agents</span>
+      <strong>{{ agentCount }}</strong>
+    </article>
+    <article class="stat-card warn">
+      <span>Admins</span>
+      <strong>{{ adminCount }}</strong>
+    </article>
+  </section>
+
+  <mat-card>
+    <mat-card-content>
+      <form [formGroup]="filtersForm" class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let role of roles" [value]="role">{{ role | titlecase }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="isActive">
+            <mat-option value="all">All</mat-option>
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="inactive">Inactive</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search</mat-label>
+          <input matInput formControlName="search" placeholder="Name or email" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <div class="filter-actions">
+          <button mat-stroked-button type="button" (click)="resetFilters()">Reset</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (isLoading) {
+    <div class="loading-wrap card-surface">
+      <mat-spinner diameter="34" />
+      <p>Loading users...</p>
+    </div>
+  } @else if (errorMessage) {
+    <mat-card class="error-card">
+      <mat-card-title>Could Not Load Users</mat-card-title>
+      <mat-card-content>{{ errorMessage }}</mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Directory ({{ users.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (users.length === 0) {
+          <p class="muted">No users matched the selected filters.</p>
+        } @else {
+          <div class="table-wrap">
+            <table mat-table [dataSource]="users" class="user-table">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let user">
+                  <div class="name-cell">
+                    <strong>{{ user.name }}</strong>
+                    <small>{{ user._id || user.id }}</small>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef>Email</th>
+                <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef>Role</th>
+                <td mat-cell *matCellDef="let user">
+                  <div class="role-editor">
+                    <mat-form-field appearance="outline" class="role-select">
+                      <mat-select [value]="draftRoleFor(user)" (selectionChange)="onRoleDraftChange(user, $event.value)" [disabled]="!canMutateUser(user) || isMutating(user)">
+                        <mat-option *ngFor="let role of roles" [value]="role">{{ role | titlecase }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <button mat-stroked-button type="button" (click)="applyRoleUpdate(user)" [disabled]="!canMutateUser(user) || isMutating(user)">
+                      Save
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let user">
+                  <span class="status-pill" [ngClass]="user.isActive === false ? 'status-open' : 'status-closed'">
+                    {{ user.isActive === false ? 'Inactive' : 'Active' }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="createdAt">
+                <th mat-header-cell *matHeaderCellDef>Created</th>
+                <td mat-cell *matCellDef="let user">{{ user.createdAt | date: 'mediumDate' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let user">
+                  <div class="action-group">
+                    <button
+                      mat-flat-button
+                      [color]="user.isActive === false ? 'primary' : 'warn'"
+                      type="button"
+                      (click)="toggleActive(user)"
+                      [disabled]="!canMutateUser(user) || isMutating(user)"
+                    >
+                      {{ user.isActive === false ? 'Activate' : 'Deactivate' }}
+                    </button>
+                    @if (isMutating(user)) {
+                      <mat-spinner diameter="18" />
+                    }
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

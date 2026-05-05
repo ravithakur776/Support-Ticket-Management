@@ -1,0 +1,72 @@
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav #drawer [mode]="isMobileNav ? 'over' : 'side'" [opened]="!isMobileNav" class="shell-nav">
+    <div class="shell-brand">
+      <div class="shell-brand-icon">
+        <mat-icon>support_agent</mat-icon>
+      </div>
+      <div>
+        <strong>Support Desk Pro</strong>
+        <p>Ops-first workspace</p>
+      </div>
+    </div>
+
+    <mat-divider />
+
+    <mat-nav-list>
+      <a
+        mat-list-item
+        routerLink="/"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="clearRealtimeBadge()"
+      >
+        <mat-icon matListItemIcon>space_dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+
+      <a mat-list-item routerLink="/tickets" routerLinkActive="active-link" (click)="clearRealtimeBadge()">
+        <mat-icon matListItemIcon [matBadge]="realtimeEvents" [matBadgeHidden]="realtimeEvents === 0" matBadgeColor="warn">
+          confirmation_number
+        </mat-icon>
+        <span matListItemTitle>{{ ticketNavLabel$ | async }}</span>
+      </a>
+
+      <a *ngIf="isAdmin$ | async" mat-list-item routerLink="/users" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>manage_accounts</mat-icon>
+        <span matListItemTitle>Users</span>
+      </a>
+    </mat-nav-list>
+
+    <button mat-flat-button class="new-ticket-btn" type="button" (click)="openCreateTicket()">
+      <mat-icon>add</mat-icon>
+      New Ticket
+    </button>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="shell-toolbar">
+      <button mat-icon-button type="button" (click)="drawer.toggle()" aria-label="Toggle navigation">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <div class="title-wrap">
+        <span class="shell-title">Support Ticket Management</span>
+        <span class="shell-subtitle">{{ dashboardSubtitle$ | async }}</span>
+      </div>
+
+      <span class="spacer"></span>
+
+      <span class="realtime-dot" [class.online]="isRealtimeConnected"></span>
+
+      @if (user$ | async; as user) {
+        <span class="user-meta">{{ user.name }} <small>{{ user.role }}</small></span>
+      }
+
+      <button mat-stroked-button type="button" (click)="logout()">Logout</button>
+    </mat-toolbar>
+
+    <main class="shell-content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

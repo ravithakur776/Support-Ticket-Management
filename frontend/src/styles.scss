@@ -1,0 +1,162 @@
+@use '@angular/material' as mat;
+
+:root {
+  --bg-canvas: linear-gradient(155deg, #edf8ff 0%, #f5f8ff 45%, #fff7ed 100%);
+  --bg-soft: rgba(255, 255, 255, 0.72);
+  --bg-strong: #ffffff;
+  --bg-elevated: #f8fbff;
+  --text-strong: #122033;
+  --text-body: #304156;
+  --text-muted: #617288;
+  --border-soft: rgba(24, 39, 58, 0.12);
+  --border-strong: rgba(24, 39, 58, 0.2);
+  --brand: #0b7a9a;
+  --brand-deep: #055f79;
+  --brand-soft: rgba(11, 122, 154, 0.14);
+  --success: #18794e;
+  --warn: #b85a13;
+  --danger: #b42339;
+  --shadow-soft: 0 8px 28px rgba(16, 37, 58, 0.07);
+  --shadow-strong: 0 16px 36px rgba(16, 37, 58, 0.12);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+}
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: Manrope,
+      density: -1,
+    )
+  );
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color-scheme: light;
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg-canvas);
+  color: var(--text-body);
+  font-family: 'Manrope', sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+}
+
+code,
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+a {
+  color: var(--brand-deep);
+}
+
+::selection {
+  background: rgba(11, 122, 154, 0.16);
+}
+
+.card-surface {
+  background: var(--bg-soft);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.68rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.status-open,
+.status-in_progress {
+  background: rgba(184, 90, 19, 0.14);
+  color: #8f3d09;
+}
+
+.status-resolved,
+.status-closed {
+  background: rgba(24, 121, 78, 0.15);
+  color: #145c3a;
+}
+
+.priority-low {
+  background: rgba(24, 121, 78, 0.16);
+  color: #145c3a;
+}
+
+.priority-medium {
+  background: rgba(11, 122, 154, 0.14);
+  color: #055f79;
+}
+
+.priority-high {
+  background: rgba(180, 35, 57, 0.16);
+  color: #8b1d2f;
+}
+
+.mat-mdc-card {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  border-radius: 12px !important;
+}
+
+.mdc-text-field--outlined {
+  border-radius: 12px;
+}
+
+.snack-success {
+  --mdc-snackbar-container-color: #145c3a;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #c8efdb;
+}
+
+.snack-info {
+  --mdc-snackbar-container-color: #055f79;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #cfeffa;
+}
+
+.snack-warn {
+  --mdc-snackbar-container-color: #8f3d09;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffe6ce;
+}
+
+.snack-error {
+  --mdc-snackbar-container-color: #8b1d2f;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffd3da;
+}
