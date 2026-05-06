@@ -70,3 +70,6 @@ Current emitted server events:
 ## Role-Based Access Control
 `authorize(...roles)` middleware enforces route-level role access.
 This is ready to apply in Phase 2+ routes.
+
+
+..
