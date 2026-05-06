@@ -71,5 +71,3 @@ Current emitted server events:
 `authorize(...roles)` middleware enforces route-level role access.
 This is ready to apply in Phase 2+ routes.
 
-
-..
